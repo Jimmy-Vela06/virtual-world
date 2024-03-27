@@ -4,10 +4,12 @@ body {
 }
 
 h1 {
-  color: white;
+  color: whitesmoke;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
 #myCanvas {
-  background-color: seagreen;
+  background-color: rgb(21, 22, 21);
+  background-image: linear-gradient(0deg, transparent 1px, whitesmoke 1.5px), linear-gradient(90deg, transparent 1px, whitesmoke 1.5px);
+  background-size: 20px 20px;
 }
