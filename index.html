@@ -3,13 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Graph 1</title>
+    <title>Graph-Viewport</title>
     <link href="styles.css" rel="stylesheet" />
   </head>
   <body>
-    <h1>Graph2</h1>
+    <h1>Viewport</h1>
     <canvas id="myCanvas"></canvas>
 
+    <!-- graph 1 buttons -->
     <div id="controls">
       <!-- <button onclick="addRandomPoint()">Add Point</button>
       <button onclick="addRandomSegment()">Add Segment</button>
@@ -20,6 +21,7 @@
 
     <script src="js/math/graph.js"></script>
     <script src="js/graphEditor.js"></script>
+    <script src="js/viewport.js"></script>
     <script src="js/primitives/point.js"></script>
     <script src="js/primitives/segment.js"></script>
     <script src="js/math/utils.js"></script>
@@ -90,13 +92,18 @@
       const graph = new Graph([p1, p2, p3, p4], [s1, s2, s3, s4]);
       // graph.draw(ctx);
 
-      const graphEditor = new GraphEditor(myCanvas, graph);
+      const viewport = new ViewPort(myCanvas);
+
+      const graphEditor = new GraphEditor(viewport, graph);
 
       animate();
 
       function animate() {
         ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
+        ctx.save();
+        ctx.scale(1 / viewport.zoom, 1 / viewport.zoom);
         graphEditor.display();
+        ctx.restore();
         requestAnimationFrame(animate);
       }
     </script>
