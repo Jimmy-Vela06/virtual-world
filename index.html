@@ -3,11 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Graph-Viewport</title>
+    <title>Roads</title>
     <link href="styles.css" rel="stylesheet" />
   </head>
   <body>
-    <h1>Viewport</h1>
+    <h1>Roads</h1>
     <canvas id="myCanvas"></canvas>
 
     <!-- graph 1 buttons -->
@@ -27,6 +27,8 @@
     <script src="js/viewport.js"></script>
     <script src="js/primitives/point.js"></script>
     <script src="js/primitives/segment.js"></script>
+    <script src="js/primitives/polygon.js"></script>
+    <script src="js/primitives/envelope.js"></script>
     <script src="js/math/utils.js"></script>
     <script>
       function addRandomPoint() {
@@ -107,6 +109,9 @@
       function animate() {
         viewport.reset();
         graphEditor.display();
+
+        // new Polygon(graph.points).draw(ctx);
+        new Envelope(graph.segments[0], 120, 20).draw(ctx);
         requestAnimationFrame(animate);
       }
 
