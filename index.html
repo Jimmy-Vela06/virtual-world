@@ -29,6 +29,7 @@
     <script src="js/primitives/segment.js"></script>
     <script src="js/primitives/polygon.js"></script>
     <script src="js/primitives/envelope.js"></script>
+    <script src="js/world.js"></script>
     <script src="js/math/utils.js"></script>
     <script>
       function addRandomPoint() {
@@ -98,6 +99,8 @@
       const graphInfo = graphString ? JSON.parse(graphString) : null;
 
       const graph = graphInfo ? Graph.load(graphInfo) : new Graph();
+
+      const world = new World(graph);
       // graph.draw(ctx);
 
       const viewport = new ViewPort(myCanvas);
@@ -110,8 +113,11 @@
         viewport.reset();
         graphEditor.display();
 
+        world.generate();
+        world.draw(ctx);
+
         // new Polygon(graph.points).draw(ctx);
-        new Envelope(graph.segments[0], 120, 20).draw(ctx);
+        // new Envelope(graph.segments[0], 120, 20).draw(ctx);
         requestAnimationFrame(animate);
       }
 

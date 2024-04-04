@@ -5,7 +5,7 @@ class Envelope {
   }
 
   #generatePolygon(width, roundness) {
-    console.log(this.skeleton);
+    // console.log(this.skeleton);
     const { p1, p2 } = this.skeleton;
 
     const radius = width / 2;
@@ -31,7 +31,7 @@ class Envelope {
     return new Polygon(points);
   }
 
-  draw(ctx) {
-    this.poly.draw(ctx);
+  draw(ctx, options) {
+    this.poly.draw(ctx, options);
   }
 }
