@@ -5,7 +5,8 @@ class World {
 		roadRoundness = 20,
 		buildingWidth = 150,
 		buildingMinLength = 150,
-		spacing = 50
+		spacing = 50,
+		treeSize = 160
 	) {
 		this.graph = graph;
 		this.roadWidth = roadWidth;
@@ -15,10 +16,14 @@ class World {
 		this.buildingMinLength = buildingMinLength;
 		this.spacing = spacing;
 
+		this.treeSize = treeSize;
+
 		this.envelopes = [];
 		this.roadBorders = [];
 
 		this.buildings = [];
+
+		this.trees = [];
 
 		this.generate();
 	}
@@ -37,6 +42,74 @@ class World {
 		);
 
 		this.buildings = this.#generateBuildings();
+
+		this.trees = this.#generateTrees();
+	}
+
+	#generateTrees() {
+		const points = [
+			...this.roadBorders.map((s) => [s.p1, s.p2]).flat(),
+			...this.buildings.map((b) => b.points).flat(),
+		];
+		const left = Math.min(...points.map((p) => p.x));
+		const right = Math.max(...points.map((p) => p.x));
+		const top = Math.min(...points.map((p) => p.y));
+		const bottom = Math.max(...points.map((p) => p.y));
+
+		const illegalPolys = [
+			...this.buildings,
+			...this.envelopes.map((e) => e.poly),
+		];
+
+		const trees = [];
+		let tryCount = 0;
+		while (tryCount < 100) {
+			const p = new Point(
+				lerp(left, right, Math.random()),
+				lerp(bottom, top, Math.random())
+			);
+
+			// check if tree inside or nearby building / road
+			let keep = true;
+			for (const poly of illegalPolys) {
+				if (
+					poly.containsPoint(p) ||
+					poly.distanceToPoint(p) < this.treeSize / 2
+				) {
+					keep = false;
+					break;
+				}
+			}
+
+			// check if tree too close to other trees
+			if (keep) {
+				for (const tree of trees) {
+					if (distance(tree, p) < this.treeSize) {
+						keep = false;
+						break;
+					}
+				}
+			}
+
+			// avoiding trees in the middle of nowhere
+			if (keep) {
+				let closeToSomething = false;
+				for (const poly of illegalPolys) {
+					if (poly.distanceToPoint(p) < this.treeSize * 2) {
+						closeToSomething = true;
+						break;
+					}
+				}
+				keep = closeToSomething;
+			}
+
+			if (keep) {
+				trees.push(p);
+				tryCount = 0;
+			}
+			tryCount++;
+		}
+		return trees;
 	}
 
 	#generateBuildings() {
@@ -117,6 +190,10 @@ class World {
 		this.roadBorders.forEach((segment) =>
 			segment.draw(ctx, {color: 'white', width: 4})
 		);
+
+		for (const tree of this.trees) {
+			tree.draw(ctx, {size: this.treeSize, color: 'rgba(0,0,0,0.5)'});
+		}
 
 		this.buildings.forEach((bldg) => bldg.draw(ctx));
 	}

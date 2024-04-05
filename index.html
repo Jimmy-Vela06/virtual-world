@@ -94,12 +94,16 @@
 				graph.draw(ctx);
 			}
 
-			myCanvas.width = 610;
-			myCanvas.height = 610;
+			let myCanvas = document.getElementById('myCanvas');
+			let viewportWidth = window.innerWidth * 0.9; // 90% of viewport width
+			let viewportHeight = window.innerHeight * 0.8; // 90% of viewport height
+
+			myCanvas.width = viewportWidth;
+			myCanvas.height = viewportHeight;
 
 			const ctx = myCanvas.getContext('2d');
 
-			const p1 = new Point(100, 100);
+			// const p1 = new Point(100, 100);
 			// const p2 = new Point(500, 200);
 			// const p3 = new Point(500, 500);
 			// const p4 = new Point(100, 300);
@@ -121,14 +125,20 @@
 
 			const graphEditor = new GraphEditor(viewport, graph);
 
+			let oldGraphHash = graph.hash();
+
 			animate();
 
 			function animate() {
 				viewport.reset();
+				if (graph.hash() != oldGraphHash) {
+					world.generate();
+					oldGraphHash = graph.hash();
+				}
 
 				world.draw(ctx);
+				ctx.globalAlpha = 0.3;
 				graphEditor.display();
-				world.generate();
 
 				// new Polygon(graph.points).draw(ctx);
 				// new Envelope(graph.segments[0], 120, 20).draw(ctx);
