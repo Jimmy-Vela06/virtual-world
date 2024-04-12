@@ -1,8 +1,8 @@
 class World {
 	constructor(
 		graph,
-		roadWidth = 80,
-		roadRoundness = 20,
+		roadWidth = 100,
+		roadRoundness = 10,
 		buildingWidth = 150,
 		buildingMinLength = 150,
 		spacing = 50,
@@ -11,39 +11,49 @@ class World {
 		this.graph = graph;
 		this.roadWidth = roadWidth;
 		this.roadRoundness = roadRoundness;
-
 		this.buildingWidth = buildingWidth;
 		this.buildingMinLength = buildingMinLength;
 		this.spacing = spacing;
-
 		this.treeSize = treeSize;
 
 		this.envelopes = [];
 		this.roadBorders = [];
-
 		this.buildings = [];
-
 		this.trees = [];
+		this.laneGuides = [];
+
+		this.markings = [];
+
+		this.frameCount = 0;
 
 		this.generate();
 	}
 
 	generate() {
 		this.envelopes.length = 0;
-
-		this.graph.segments.forEach((segment) => {
+		for (const seg of this.graph.segments) {
 			this.envelopes.push(
-				new Envelope(segment, this.roadWidth, this.roadRoundness)
+				new Envelope(seg, this.roadWidth, this.roadRoundness)
 			);
-		});
+		}
 
-		this.roadBorders = Polygon.union(
-			this.envelopes.map((envelope) => envelope.poly)
-		);
-
+		this.roadBorders = Polygon.union(this.envelopes.map((e) => e.poly));
 		this.buildings = this.#generateBuildings();
-
 		this.trees = this.#generateTrees();
+
+		this.laneGuides.length = 0;
+		this.laneGuides.push(...this.#generateLaneGuides());
+	}
+
+	#generateLaneGuides() {
+		const tmpEnvelopes = [];
+		for (const seg of this.graph.segments) {
+			tmpEnvelopes.push(
+				new Envelope(seg, this.roadWidth / 2, this.roadRoundness)
+			);
+		}
+		const segments = Polygon.union(tmpEnvelopes.map((e) => e.poly));
+		return segments;
 	}
 
 	#generateTrees() {
@@ -124,7 +134,7 @@ class World {
 			);
 		}
 
-		const guides = Polygon.union(tmpEnvelopes.map((envelope) => envelope.poly));
+		const guides = Polygon.union(tmpEnvelopes.map((e) => e.poly));
 
 		for (let i = 0; i < guides.length; i++) {
 			const seg = guides[i];
@@ -135,16 +145,16 @@ class World {
 		}
 
 		const supports = [];
-		for (const segment of guides) {
-			const len = segment.length() + this.spacing;
+		for (let seg of guides) {
+			const len = seg.length() + this.spacing;
 			const buildingCount = Math.floor(
 				len / (this.buildingMinLength + this.spacing)
 			);
 			const buildingLength = len / buildingCount - this.spacing;
 
-			const dir = segment.directionVector();
+			const dir = seg.directionVector();
 
-			let q1 = segment.p1;
+			let q1 = seg.p1;
 			let q2 = add(q1, scale(dir, buildingLength));
 			supports.push(new Segment(q1, q2));
 
@@ -156,8 +166,8 @@ class World {
 		}
 
 		const bases = [];
-		for (const segment of supports) {
-			bases.push(new Envelope(segment, this.buildingWidth).poly);
+		for (const seg of supports) {
+			bases.push(new Envelope(seg, this.buildingWidth).poly);
 		}
 
 		const eps = 0.001;
@@ -173,23 +183,81 @@ class World {
 			}
 		}
 
-		// return bases;
-
 		return bases.map((b) => new Building(b));
 	}
 
+	#getIntersections() {
+		const subset = [];
+		for (const point of this.graph.points) {
+			let degree = 0;
+			for (const seg of this.graph.segments) {
+				if (seg.includes(point)) {
+					degree++;
+				}
+			}
+
+			if (degree > 2) {
+				subset.push(point);
+			}
+		}
+		return subset;
+	}
+
+	#updateLights() {
+		const lights = this.markings.filter((m) => m instanceof Light);
+		const controlCenters = [];
+		for (const light of lights) {
+			const point = getNearestPoint(light.center, this.#getIntersections());
+			let controlCenter = controlCenters.find((c) => c.equals(point));
+			if (!controlCenter) {
+				controlCenter = new Point(point.x, point.y);
+				controlCenter.lights = [light];
+				controlCenters.push(controlCenter);
+			} else {
+				controlCenter.lights.push(light);
+			}
+		}
+		const greenDuration = 2,
+			yellowDuration = 1;
+		for (const center of controlCenters) {
+			center.ticks = center.lights.length * (greenDuration + yellowDuration);
+		}
+		const tick = Math.floor(this.frameCount / 60);
+		for (const center of controlCenters) {
+			const cTick = tick % center.ticks;
+			const greenYellowIndex = Math.floor(
+				cTick / (greenDuration + yellowDuration)
+			);
+			const greenYellowState =
+				cTick % (greenDuration + yellowDuration) < greenDuration
+					? 'green'
+					: 'yellow';
+			for (let i = 0; i < center.lights.length; i++) {
+				if (i == greenYellowIndex) {
+					center.lights[i].state = greenYellowState;
+				} else {
+					center.lights[i].state = 'red';
+				}
+			}
+		}
+		this.frameCount++;
+	}
+
 	draw(ctx, viewPoint) {
-		this.envelopes.forEach((envelope) =>
-			envelope.draw(ctx, {fill: '#BBB', stroke: '#BBB', lineWidth: 15})
-		);
+		this.#updateLights();
 
-		this.graph.segments.forEach((segment) =>
-			segment.draw(ctx, {color: 'white', width: 4, dash: [10, 10]})
-		);
-
-		this.roadBorders.forEach((segment) =>
-			segment.draw(ctx, {color: 'white', width: 4})
-		);
+		for (const env of this.envelopes) {
+			env.draw(ctx, {fill: '#BBB', stroke: '#BBB', lineWidth: 15});
+		}
+		for (const marking of this.markings) {
+			marking.draw(ctx);
+		}
+		for (const seg of this.graph.segments) {
+			seg.draw(ctx, {color: 'white', width: 4, dash: [10, 10]});
+		}
+		for (const seg of this.roadBorders) {
+			seg.draw(ctx, {color: 'white', width: 4});
+		}
 
 		const items = [...this.buildings, ...this.trees];
 		items.sort(
