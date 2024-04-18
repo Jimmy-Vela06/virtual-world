@@ -12,8 +12,12 @@ class Segment {
 		return normalize(subtract(this.p2, this.p1));
 	}
 
-	equals(segment) {
-		return this.includes(segment.p1) && this.includes(segment.p2);
+	equals(seg) {
+		return this.includes(seg.p1) && this.includes(seg.p2);
+	}
+
+	includes(point) {
+		return this.p1.equals(point) || this.p2.equals(point);
 	}
 
 	distanceToPoint(point) {
@@ -36,10 +40,6 @@ class Segment {
 			offset: scaler / magnitude(b),
 		};
 		return proj;
-	}
-
-	includes(point) {
-		return this.p1.equals(point) || this.p2.equals(point);
 	}
 
 	draw(ctx, {width = 2, color = 'black', dash = []} = {}) {
