@@ -77,7 +77,7 @@ class GraphEditor {
 
 	#select(point) {
 		if (this.selected) {
-			this.graph.tryAddSegment(new Segment(this.selected, point));
+			this.graph.addSegment(new Segment(this.selected, point));
 		}
 		this.selected = point;
 	}
@@ -89,9 +89,8 @@ class GraphEditor {
 			this.selected = null;
 		}
 	}
-
 	dispose() {
-		this.graph.dispose();
+		this.graph.clearGraph();
 		this.selected = null;
 		this.hovered = null;
 	}
