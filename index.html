@@ -1,39 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Road-Markings</title>
-		<link href="styles.css" rel="stylesheet" />
+		<title>Virtual World</title>
+		<link rel="stylesheet" href="styles.css" />
 	</head>
 	<body>
-		<h1>Markings</h1>
+		<div class="container">
+        <div class="header">
+            <h1>BUILD YOUR WORLD</h1>
+            <button id="directionsButton" onclick="openDirections()">?</button>
+        </div>
 		<canvas id="myCanvas"></canvas>
+		<div id="editorBtns">
+    <div class="files">
+        <button onclick="dispose()">🗑️</button>
+        <button onclick="save()">💾</button>
+        <label for="fileInput" class="file-input-label">
+            📁
+            <input type="file" id="fileInput" accept=".world" onchange="load(event)" />
+        </label>
+    </div>
+    <div class="editorBtns">
+        <button id="graphBtn" onclick="setMode('graph')">🏗️👷🏼‍♂️</button>
+        <button id="stopBtn" onclick="setMode('stop')">🛑</button>
+        <button id="yieldBtn" onclick="setMode('yield')">⚠️</button>
+        <button id="crossingBtn" onclick="setMode('crossing')">🚶</button>
+        <button id="parkingBtn" onclick="setMode('parking')">🅿️</button>
+        <button id="lightBtn" onclick="setMode('light')">🚦</button>
+        <button id="startBtn" onclick="setMode('start')">🚙</button>
+        <button id="targetBtn" onclick="setMode('target')">🎯</button>
+    </div>
+</div>
 
-		<!-- graph 1 buttons -->
-		<div id="controls">
-			<!-- <button onclick="addRandomPoint()">Add Point</button>
-      <button onclick="addRandomSegment()">Add Segment</button>
-      <button onclick="removeRandomPoint()">Remove Point</button>
-      <button onclick="removeRandomSegment()">Remove Segment</button>
-      <button onclick="clearBtn()">Clear</button> -->
+<div id="directionsModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeDirections()">&times;</span>
+    <h2>Directions</h2>
+    <p>Below you will find options to build and edit the world as you please. You can add cars, roads and traffic signs. Buildings and trees are automatically generated. You can save your world to your computer  and open whenever you like. </p>
 
-			<button onclick="save()">💾</button>
-			<button onclick="dispose()">🗑️</button>
-			&nbsp;
-			<button id="graphBtn" onclick="setMode('graph')">🏗️👷🏼‍♂️</button>
-			<button id="stopBtn" onclick="setMode('stop')">🛑</button>
-			<button id="yieldBtn" onclick="setMode('yield')">⚠️</button>
-			<button id="crossingBtn" onclick="setMode('crossing')">🚶</button>
-			<button id="parkingBtn" onclick="setMode('parking')">🅿️</button>
-			<button id="lightBtn" onclick="setMode('light')">🚦</button>
-			<button id="startBtn" onclick="setMode('start')">🚙</button>
-			<button id="targetBtn" onclick="setMode('target')">🎯</button>
-		</div>
+		<button class="gitBtn" onclick="window.open('https://github.com/Jimmy-Vela06/virtual-world', '_blank')">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub Logo" width="40" height="40">
+</button>
+<p style="margin-top: -7px;">
+	View Repository
+</p>
+
+</div>
+
 
 		<script src="js/world.js"></script>
 		<script src="js/viewport.js"></script>
-		<script src="js/math/graph.js"></script>
 		<script src="js/markings/marking.js"></script>
 		<script src="js/markings/stop.js"></script>
 		<script src="js/markings/start.js"></script>
@@ -54,106 +70,37 @@
 		<script src="js/items/tree.js"></script>
 		<script src="js/items/building.js"></script>
 		<script src="js/math/utils.js"></script>
+		<script src="js/math/graph.js"></script>
 		<script src="js/primitives/point.js"></script>
 		<script src="js/primitives/segment.js"></script>
 		<script src="js/primitives/polygon.js"></script>
 		<script src="js/primitives/envelope.js"></script>
 		<script>
-			function addRandomPoint() {
-				const success = graph.newPoint(
-					new Point(
-						Math.random() * myCanvas.width,
-						Math.random() * myCanvas.height
-					)
-				);
-				ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
-				graph.draw(ctx);
-				console.log(success);
-			}
+         
+function openDirections() {
+  document.getElementById("directionsModal").style.display = "block";
+}
 
-			function addRandomSegment() {
-				const randomPointOne = Math.floor(Math.random() * graph.points.length);
-				const randomPointTwo = Math.floor(Math.random() * graph.points.length);
-				const success = graph.newSegment(
-					new Segment(
-						graph.points[randomPointOne],
-						graph.points[randomPointTwo]
-					)
-				);
+function closeDirections() {
+  document.getElementById("directionsModal").style.display = "none";
+}
 
-				ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
-				graph.draw(ctx);
-				console.log(success);
-			}
+window.onload = function() {
+  openDirections();
+}
 
-			function removeRandomSegment() {
-				if (graph.segments.length === 0) {
-					console.log('No Segments Found ❌');
-					return;
-				}
-				const randomSegIndex = Math.floor(
-					Math.random() * graph.segments.length
-				);
-
-				graph.removeSegment(graph.segments[randomSegIndex]);
-
-				ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
-				graph.draw(ctx);
-			}
-
-			function removeRandomPoint() {
-				if (graph.points.length === 0) {
-					console.log('No Points to Remove ❌');
-				}
-				const randomPointsIndex = Math.floor(
-					Math.random() * graph.points.length
-				);
-				graph.removePoint(graph.points[randomPointsIndex]);
-				console.log(graph.points[randomPointsIndex]);
-
-				ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
-				graph.draw(ctx);
-			}
-
-			function clearBtn() {
-				graph.clearGraph();
-				ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
-				graph.draw(ctx);
-			}
-
-			let myCanvas = document.getElementById('myCanvas');
-			let viewportWidth = window.innerWidth * 0.9; // 90% of viewport width
-			// let viewportHeight = window.innerHeight * 0.8; // 90% of viewport height
-
-			myCanvas.width = viewportWidth;
-			myCanvas.height = 600;
+			myCanvas.width = 900;
+			myCanvas.height = 550;
 
 			const ctx = myCanvas.getContext('2d');
 
-			// const p1 = new Point(100, 100);
-			// const p2 = new Point(500, 200);
-			// const p3 = new Point(500, 500);
-			// const p4 = new Point(100, 300);
+			const worldString = localStorage.getItem('world');
+			const worldInfo = worldString ? JSON.parse(worldString) : null;
+			let world = worldInfo ? World.load(worldInfo) : new World(new Graph());
+			const graph = world.graph;
 
-			// const s1 = new Segment(p1, p2);
-			// const s3 = new Segment(p1, p4);
-			// const s2 = new Segment(p4, p2);
-			// const s4 = new Segment(p2, p3);
+			const viewport = new Viewport(myCanvas, world.zoom, world.offset);
 
-			const graphString = localStorage.getItem('graph');
-			const graphInfo = graphString ? JSON.parse(graphString) : null;
-
-			const graph = graphInfo ? Graph.load(graphInfo) : new Graph();
-
-			const world = new World(graph);
-
-			// graph.draw(ctx);
-
-			const viewport = new ViewPort(myCanvas);
-
-			// const graphEditor = new GraphEditor(viewport, graph);
-
-			// const stopEditor = new StopEditor(viewport, world);
 			const tools = {
 				graph: {button: graphBtn, editor: new GraphEditor(viewport, graph)},
 				stop: {button: stopBtn, editor: new StopEditor(viewport, world)},
@@ -198,7 +145,42 @@
 			}
 
 			function save() {
-				localStorage.setItem('graph', JSON.stringify(graph));
+				world.zoom = viewport.zoom;
+				world.offset = viewport.offset;
+
+				const element = document.createElement('a');
+				element.setAttribute(
+					'href',
+					'data:application/json;charset=utf-8,' +
+						encodeURIComponent(JSON.stringify(world))
+				);
+
+				const fileName = 'name.world';
+				element.setAttribute('download', fileName);
+
+				element.click();
+
+				localStorage.setItem('world', JSON.stringify(world));
+			}
+
+			function load(event) {
+				const file = event.target.files[0];
+
+				if (!file) {
+					alert('No file selected.');
+					return;
+				}
+
+				const reader = new FileReader();
+				reader.readAsText(file);
+
+				reader.onload = (evt) => {
+					const fileContent = evt.target.result;
+					const jsonData = JSON.parse(fileContent);
+					world = World.load(jsonData);
+					localStorage.setItem('world', JSON.stringify(world));
+					location.reload();
+				};
 			}
 
 			function setMode(mode) {

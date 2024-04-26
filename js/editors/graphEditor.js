@@ -55,7 +55,6 @@ class GraphEditor {
 
 	#handleMouseDown(evt) {
 		if (evt.button == 2) {
-			// right click
 			if (this.selected) {
 				this.selected = null;
 			} else if (this.hovered) {
@@ -63,7 +62,6 @@ class GraphEditor {
 			}
 		}
 		if (evt.button == 0) {
-			// left click
 			if (this.hovered) {
 				this.#select(this.hovered);
 				this.dragging = true;
@@ -77,7 +75,7 @@ class GraphEditor {
 
 	#select(point) {
 		if (this.selected) {
-			this.graph.addSegment(new Segment(this.selected, point));
+			this.graph.tryAddSegment(new Segment(this.selected, point));
 		}
 		this.selected = point;
 	}
@@ -89,8 +87,9 @@ class GraphEditor {
 			this.selected = null;
 		}
 	}
+
 	dispose() {
-		this.graph.clearGraph();
+		this.graph.dispose();
 		this.selected = null;
 		this.hovered = null;
 	}
