@@ -3,12 +3,9 @@
 ## ![MIT license](https://img.shields.io/badge/License-MIT-red.svg) ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white) ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
 
 ## Table of Contents:
-
-- [World-Builder](#world-builder)
-  - [ ](#---)
   - [Table of Contents:](#table-of-contents)
   - [Description](#description)
-  - [demo](#demo)
+  - [Demo](#demo)
   - [Technologies](#technologies)
   - [Features](#features)
   - [Process](#process)
@@ -23,7 +20,7 @@ Build a world that auto generates buildings and trees that follows your created
 road path. Add cars and traffic signs such as cross walks, stops signs and
 traffic lights.
 
-## demo
+## Demo
 
 ![My demo](./demo.gif)
 
