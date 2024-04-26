@@ -5,7 +5,6 @@
 ## Table of Contents:
 
 - [World-Builder](#world-builder)
-  - [ ](#---)
   - [Table of Contents:](#table-of-contents)
   - [Description](#description)
   - [Technologies](#technologies)
