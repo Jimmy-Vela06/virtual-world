@@ -29,6 +29,26 @@ class World {
 		this.generate();
 	}
 
+	static load(info) {
+		const world = new World(new Graph());
+		world.graph = Graph.load(info.graph);
+		world.roadWidth = info.roadWidth;
+		world.roadRoundness = info.roadRoundness;
+		world.buildingWidth = info.buildingWidth;
+		world.buildingMinLength = info.buildingMinLength;
+		world.spacing = info.spacing;
+		world.treeSize = info.treeSize;
+		world.envelopes = info.envelopes.map((e) => Envelope.load(e));
+		world.roadBorders = info.roadBorders.map((b) => new Segment(b.p1, b.p2));
+		world.buildings = info.buildings.map((e) => Building.load(e));
+		world.trees = info.trees.map((t) => new Tree(t.center, info.treeSize));
+		world.laneGuides = info.laneGuides.map((g) => new Segment(g.p1, g.p2));
+		world.markings = info.markings.map((m) => Marking.load(m));
+		world.zoom = info.zoom;
+		world.offset = info.offset;
+		return world;
+	}
+
 	generate() {
 		this.envelopes.length = 0;
 		for (const seg of this.graph.segments) {
@@ -79,7 +99,6 @@ class World {
 				lerp(bottom, top, Math.random())
 			);
 
-			// check if tree inside or nearby building / road
 			let keep = true;
 			for (const poly of illegalPolys) {
 				if (
@@ -91,7 +110,6 @@ class World {
 				}
 			}
 
-			// check if tree too close to other trees
 			if (keep) {
 				for (const tree of trees) {
 					if (distance(tree.center, p) < this.treeSize) {
@@ -101,7 +119,6 @@ class World {
 				}
 			}
 
-			// avoiding trees in the middle of nowhere
 			if (keep) {
 				let closeToSomething = false;
 				for (const poly of illegalPolys) {

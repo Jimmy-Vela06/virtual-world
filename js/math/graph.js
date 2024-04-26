@@ -1,89 +1,88 @@
 class Graph {
-	constructor(points = [], segments = []) {
-		this.points = points;
-		this.segments = segments;
-	}
+   constructor(points = [], segments = []) {
+      this.points = points;
+      this.segments = segments;
+   }
 
-	static load(info) {
-		const points = info.points.map((i) => new Point(i.x, i.y));
-		const segments = info.segments.map(
-			(i) =>
-				new Segment(
-					points.find((p) => p.equals(i.p1)),
-					points.find((p) => p.equals(i.p2))
-				)
-		);
-		return new Graph(points, segments);
-	}
+   static load(info) {
+      const points = info.points.map((i) => new Point(i.x, i.y));
+      const segments = info.segments.map((i) => new Segment(
+         points.find((p) => p.equals(i.p1)),
+         points.find((p) => p.equals(i.p2))
+      ));
+      return new Graph(points, segments);
+   }
 
-	hash() {
-		return JSON.stringify(this);
-	}
+   hash() {
+      return JSON.stringify(this);
+   }
 
-	addPoint(point) {
-		this.points.push(point);
-	}
+   addPoint(point) {
+      this.points.push(point);
+   }
 
-	containsPoint(point) {
-		return this.points.find((p) => p.equals(point));
-	}
+   containsPoint(point) {
+      return this.points.find((p) => p.equals(point));
+   }
 
-	newPoint(point) {
-		if (!this.containsPoint(point)) {
-			this.addPoint(point);
-			return true;
-		}
-		return false;
-	}
+   tryAddPoint(point) {
+      if (!this.containsPoint(point)) {
+         this.addPoint(point);
+         return true;
+      }
+      return false;
+   }
 
-	removePoint(point) {
-		const segs = this.getSegmentsWithPoint(point);
-		console.log(segs);
-		for (const seg of segs) {
-			this.removeSegment(seg);
-		}
-		return this.points.splice(this.points.indexOf(point), 1);
-	}
+   removePoint(point) {
+      const segs = this.getSegmentsWithPoint(point);
+      for (const seg of segs) {
+         this.removeSegment(seg);
+      }
+      this.points.splice(this.points.indexOf(point), 1);
+   }
 
-	addSegment(segment) {
-		this.segments.push(segment);
-	}
-	containsSegment(segment) {
-		return this.segments.find((s) => s.equals(segment));
-	}
+   addSegment(seg) {
+      this.segments.push(seg);
+   }
 
-	newSegment(segment) {
-		if (!this.containsSegment(segment) && !segment.p1.equals(segment.p2)) {
-			this.addSegment(segment);
-			return true;
-		}
-		return false;
-	}
+   containsSegment(seg) {
+      return this.segments.find((s) => s.equals(seg));
+   }
 
-	removeSegment(segment) {
-		return this.segments.splice(this.segments.indexOf(segment), 1);
-	}
+   tryAddSegment(seg) {
+      if (!this.containsSegment(seg) && !seg.p1.equals(seg.p2)) {
+         this.addSegment(seg);
+         return true;
+      }
+      return false;
+   }
 
-	getSegmentsWithPoint(point) {
-		const segs = [];
-		for (const seg of this.segments) {
-			if (seg.includes(point)) {
-				segs.push(seg);
-				console.log(segs, 'getSegmentsWithPoint');
-			}
-		}
-		return segs;
-	}
+   removeSegment(seg) {
+      this.segments.splice(this.segments.indexOf(seg), 1);
+   }
 
-	clearGraph() {
-		console.log('hi');
-		this.points.length = 0;
-		this.segments.length = 0;
-	}
+   getSegmentsWithPoint(point) {
+      const segs = [];
+      for (const seg of this.segments) {
+         if (seg.includes(point)) {
+            segs.push(seg);
+         }
+      }
+      return segs;
+   }
 
-	draw(ctx) {
-		this.segments.forEach((segment) => segment.draw(ctx));
+   dispose() {
+      this.points.length = 0;
+      this.segments.length = 0;
+   }
 
-		this.points.forEach((point) => point.draw(ctx));
-	}
+   draw(ctx) {
+      for (const seg of this.segments) {
+         seg.draw(ctx);
+      }
+
+      for (const point of this.points) {
+         point.draw(ctx);
+      }
+   }
 }

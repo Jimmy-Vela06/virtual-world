@@ -4,6 +4,10 @@ class Building {
 		this.height = height;
 	}
 
+	static load(info) {
+		return new Building(Polygon.load(info.base), info.height);
+	}
+
 	draw(ctx, viewPoint) {
 		const topPoints = this.base.points.map((p) =>
 			getFake3dPoint(p, viewPoint, this.height * 0.6)
@@ -53,18 +57,18 @@ class Building {
 		);
 
 		this.base.draw(ctx, {
-			fill: 'white',
+			fill: '#F3EDC8',
 			stroke: 'rgba(0,0,0,0.2)',
 			lineWidth: 20,
 		});
 		for (const side of sides) {
-			side.draw(ctx, {fill: 'white', stroke: '#AAA'});
+			side.draw(ctx, {fill: '#F3EDC8', stroke: '#AAA'});
 		}
 		ceiling.draw(ctx, {fill: 'white', stroke: 'white', lineWidth: 6});
 		for (const poly of roofPolys) {
 			poly.draw(ctx, {
-				fill: '#D44',
-				stroke: '#C44',
+				fill: '#B80000',
+				stroke: '#820300',
 				lineWidth: 8,
 				join: 'round',
 			});
