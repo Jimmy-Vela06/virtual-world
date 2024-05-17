@@ -33,7 +33,7 @@ traffic lights.
 
 ## Features
 
-This application allows the user to create a world of there own. The user will
+This application allows the user to create a world of their own. The user will
 be able create there own desired road paths. Upon creating a path buildings and
 trees are auto populated. Once a road path is created the user can then add
 items such as cars, traffic lights, cross walks, stop signs, yield and parking
